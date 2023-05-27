@@ -71,6 +71,13 @@ int main()
 		std::cout << "[+] (F5) RIFLE MAG: " << ((player->rifle_mag->toggle) ? "ON" : "OFF") << std::endl;
 		std::cout << "[+] (F6) PISTAL AMMO: " << ((player->pistal_ammo->toggle) ? "ON" : "OFF") << std::endl;
 		std::cout << "[+] (F7) PISTAL MAG: " << ((player->pistal_mag->toggle) ? "ON" : "OFF") << std::endl;
+		std::cout << "[+] (F8) SNIPER AMMO: " << ((player->sniper_ammo->toggle) ? "ON" : "OFF") << std::endl;
+		std::cout << "[+] (F9) SNIPER MAG: " << ((player->sniper_mag->toggle) ? "ON" : "OFF") << std::endl;
+		std::cout << "[+] (F10) SHOTGUN AMMO: " << ((player->shotgun_ammo->toggle) ? "ON" : "OFF") << std::endl;
+		std::cout << "[+] (NUM_0) SHOTGUN MAG: " << ((player->shotgun_mag->toggle) ? "ON" : "OFF") << std::endl;
+		std::cout << "[+] (NUM_1) RAPID FIRE: " << ((player->rapid_fire->toggle) ? "ON" : "OFF") << std::endl;
+		std::cout << "[+] (NUM_2) NO RECOIL: " << ((player->no_recoil->toggle) ? "ON" : "OFF") << std::endl;
+
 
 		// INIT HOTKEYS
 		if (GetAsyncKeyState(VK_F1) & 1)
@@ -108,6 +115,35 @@ int main()
 			player->pistal_mag->toggle = !player->pistal_mag->toggle;
 		}
 
+		if (GetAsyncKeyState(VK_F8) & 1)
+		{
+			player->sniper_ammo->toggle = !player->sniper_ammo->toggle;
+		}
+
+		if (GetAsyncKeyState(VK_F9) & 1)
+		{
+			player->sniper_mag->toggle = !player->sniper_mag->toggle;
+		}
+
+		if (GetAsyncKeyState(VK_F10) & 1)
+		{
+			player->shotgun_ammo->toggle = !player->shotgun_ammo->toggle;
+		}
+
+		if (GetAsyncKeyState(VK_NUMPAD0) & 1)
+		{
+			player->shotgun_mag->toggle = !player->shotgun_mag->toggle;
+		}
+
+		if (GetAsyncKeyState(VK_NUMPAD1) & 1)
+		{
+			player->rapid_fire->toggle = !player->rapid_fire->toggle;
+		}
+
+		if (GetAsyncKeyState(VK_NUMPAD2) & 1)
+		{
+			player->no_recoil->toggle = !player->no_recoil->toggle;
+		}
 
 		if (player->health->toggle)
 		{
@@ -193,6 +229,96 @@ int main()
 			};
 		}
 
+
+		if (player->sniper_ammo->toggle)
+		{
+			player->sniper_ammo->value = 1337;
+
+			if ((WriteMem(hProcess, player->sniper_ammo)) == FALSE)
+			{
+				std::cout << "[!] WriteProcessMemory player->sniper_ammo failed with error code: " << GetLastError() << std::endl;
+				system("pause");
+				return 0;
+			};
+		}
+
+
+		if (player->sniper_mag->toggle)
+		{
+			player->sniper_mag->value = 1337;
+
+			if ((WriteMem(hProcess, player->sniper_mag)) == FALSE)
+			{
+				std::cout << "[!] WriteProcessMemory player->sniper_mag failed with error code: " << GetLastError() << std::endl;
+				system("pause");
+				return 0;
+			};
+		}
+
+
+		if (player->shotgun_ammo->toggle)
+		{
+			player->shotgun_ammo->value = 1337;
+
+			if ((WriteMem(hProcess, player->shotgun_ammo)) == FALSE)
+			{
+				std::cout << "[!] WriteProcessMemory player->shotgun_ammo failed with error code: " << GetLastError() << std::endl;
+				system("pause");
+				return 0;
+			};
+		}
+
+
+		if (player->shotgun_mag->toggle)
+		{
+			player->shotgun_mag->value = 1337;
+
+			if ((WriteMem(hProcess, player->shotgun_mag)) == FALSE)
+			{
+				std::cout << "[!] WriteProcessMemory player->shotgun_mag failed with error code: " << GetLastError() << std::endl;
+				system("pause");
+				return 0;
+			};
+		}
+
+		if (player->rapid_fire->toggle)
+		{
+
+			if ((NopEx(hProcess, (PBYTE)player->rapid_fire->address,2)) == FALSE)
+			{
+				std::cout << "[!] NopEx player->rapid_fire failed with error code: " << GetLastError() << std::endl;
+				system("pause");
+				return 0;
+			};
+		}
+		else {
+			if ((PatchMemEx(hProcess, (PBYTE)player->rapid_fire->address,(PBYTE)"\x89\x08", 2)) == FALSE)
+			{
+				std::cout << "[!] PatchMemEx player->rapid_fire failed with error code: " << GetLastError() << std::endl;
+				system("pause");
+				return 0;
+			};
+		}
+
+		if (player->no_recoil->toggle)
+		{
+
+			if ((NopEx(hProcess, (PBYTE)player->no_recoil->address, 5)) == FALSE)
+			{
+				std::cout << "[!] NopEx player->no_recoil failed with error code: " << GetLastError() << std::endl;
+				system("pause");
+				return 0;
+			};
+		}
+		else {
+			if ((PatchMemEx(hProcess, (PBYTE)player->rapid_fire->address, (PBYTE)"\xF3\x0F\x11\x50\x40", 5)) == FALSE)
+			{
+				std::cout << "[!] PatchMemEx player->no_recoil failed with error code: " << GetLastError() << std::endl;
+				system("pause");
+				return 0;
+			};
+		}
+
 		Sleep(16);
 		system("cls");
 	}
@@ -210,6 +336,12 @@ void init_player_data(IN std::shared_ptr<PLAYER> player)
 {
 	// ----------------- LOCAL PLAYER SETUP
 	player->local_player = std::make_shared<PLAYER_DATA>();
+
+	// ----------------- LOCAL RAPID FIRE SETUP
+	player->rapid_fire = std::make_shared<PLAYER_DATA>();
+
+	// ----------------- no_recoil SETUP
+	player->no_recoil = std::make_shared<PLAYER_DATA>();
 
 	// ----------------- health SETUP
 	player->health = std::make_shared<PLAYER_DATA>();
@@ -245,6 +377,26 @@ void init_player_data(IN std::shared_ptr<PLAYER> player)
 	player->pistal_mag = std::make_shared<PLAYER_DATA>();
 	player->pistal_mag->offsets = std::make_shared<std::vector<PVOID>>();
 	player->pistal_mag->offsets->push_back(reinterpret_cast<PVOID>(0x108));
+
+	// ----------------- sniper_ammo SETUP
+	player->sniper_ammo = std::make_shared<PLAYER_DATA>();
+	player->sniper_ammo->offsets = std::make_shared<std::vector<PVOID>>();
+	player->sniper_ammo->offsets->push_back(reinterpret_cast<PVOID>(0x13C));
+
+	// ----------------- sniper_mag SETUP
+	player->sniper_mag = std::make_shared<PLAYER_DATA>();
+	player->sniper_mag->offsets = std::make_shared<std::vector<PVOID>>();
+	player->sniper_mag->offsets->push_back(reinterpret_cast<PVOID>(0x118));
+
+	// ----------------- shotgun_ammo SETUP
+	player->shotgun_ammo = std::make_shared<PLAYER_DATA>();
+	player->shotgun_ammo->offsets = std::make_shared<std::vector<PVOID>>();
+	player->shotgun_ammo->offsets->push_back(reinterpret_cast<PVOID>(0x134));
+
+	// ----------------- shotgun_mag SETUP
+	player->shotgun_mag = std::make_shared<PLAYER_DATA>();
+	player->shotgun_mag->offsets = std::make_shared<std::vector<PVOID>>();
+	player->shotgun_mag->offsets->push_back(reinterpret_cast<PVOID>(0x110));
 }
 
 
@@ -254,6 +406,14 @@ BOOL init_player_dynamic_address(IN HANDLE hProcess, IN PVOID modulebase_address
 	// Get dynamic local player address
 	player->local_player->address = reinterpret_cast<PVOID>(reinterpret_cast<uintptr_t>(modulebase_address) + 0x0017E0A8);
 	std::cout << "[+] Dynamic LocalPlayer address: " << player->local_player->address << std::endl;
+
+	// Get dynamic rapid_fire address
+	player->rapid_fire->address = reinterpret_cast<PVOID>(reinterpret_cast<uintptr_t>(modulebase_address) + 0xC73EA);
+	std::cout << "[+] Dynamic rapid_fire address: " << player->rapid_fire->address << std::endl;
+
+	// Get dynamic rapid_fire address
+	player->no_recoil->address = reinterpret_cast<PVOID>(reinterpret_cast<uintptr_t>(modulebase_address) + 0xC8E52);
+	std::cout << "[+] Dynamic no_recoil address: " << player->no_recoil->address << std::endl;
 
 	// Find dynamic health address
 	if (!FindDMAAddy(hProcess, player->local_player->address, *player->health->offsets, &player->health->address))
@@ -308,6 +468,40 @@ BOOL init_player_dynamic_address(IN HANDLE hProcess, IN PVOID modulebase_address
 	if (!FindDMAAddy(hProcess, player->local_player->address, *player->pistal_mag->offsets, &player->pistal_mag->address))
 	{
 		std::cout << "[!] FindDMAAddy with pistal_mag failed with error code: " << GetLastError() << std::endl;
+		system("pause");
+		return FALSE;
+	}
+
+	// Find dynamic sniper_ammo address
+	if (!FindDMAAddy(hProcess, player->local_player->address, *player->sniper_ammo->offsets, &player->sniper_ammo->address))
+	{
+		std::cout << "[!] FindDMAAddy with sniper_ammo failed with error code: " << GetLastError() << std::endl;
+		system("pause");
+		return FALSE;
+	}
+
+
+	// Find dynamic sniper_mag address
+	if (!FindDMAAddy(hProcess, player->local_player->address, *player->sniper_mag->offsets, &player->sniper_mag->address))
+	{
+		std::cout << "[!] FindDMAAddy with sniper_mag failed with error code: " << GetLastError() << std::endl;
+		system("pause");
+		return FALSE;
+	}
+
+	// Find dynamic shotgun_ammo address
+	if (!FindDMAAddy(hProcess, player->local_player->address, *player->shotgun_ammo->offsets, &player->shotgun_ammo->address))
+	{
+		std::cout << "[!] FindDMAAddy with shotgun_ammo failed with error code: " << GetLastError() << std::endl;
+		system("pause");
+		return FALSE;
+	}
+
+
+	// Find dynamic shotgun_mag address
+	if (!FindDMAAddy(hProcess, player->local_player->address, *player->shotgun_mag->offsets, &player->shotgun_mag->address))
+	{
+		std::cout << "[!] FindDMAAddy with shotgun_mag failed with error code: " << GetLastError() << std::endl;
 		system("pause");
 		return FALSE;
 	}

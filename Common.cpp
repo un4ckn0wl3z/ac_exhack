@@ -88,3 +88,36 @@ BOOL FindDMAAddy(IN HANDLE hProcess, IN PVOID init_ptr, IN std::vector<PVOID> of
 	return TRUE;
 
 }
+
+
+BOOL PatchMemEx(HANDLE hProcess, PBYTE dst, PBYTE src, DWORD size)
+{
+	DWORD oldProtect;
+	
+	if ((VirtualProtectEx(hProcess, dst, size, PAGE_EXECUTE_READWRITE, &oldProtect)) == FALSE)
+	{
+		return FALSE;
+	}
+
+	if ((WriteProcessMemory(hProcess, dst, src, size, NULL)) == FALSE)
+	{
+		return FALSE;
+	}
+
+	if ((VirtualProtectEx(hProcess, dst, size, oldProtect, &oldProtect)) == FALSE)
+	{
+		return FALSE;
+	}
+
+}
+
+
+BOOL NopEx(HANDLE hProcess, PBYTE dst, DWORD size)
+{
+	PBYTE nops = new BYTE[size];
+	memset(nops, 0x90, size);
+	BOOL result = PatchMemEx(hProcess, dst, nops, size);
+	delete[] nops;
+	return result;
+
+}
