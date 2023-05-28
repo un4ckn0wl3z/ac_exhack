@@ -311,7 +311,7 @@ int main()
 			};
 		}
 		else {
-			if ((PatchMemEx(hProcess, (PBYTE)player->rapid_fire->address, (PBYTE)"\xF3\x0F\x11\x50\x40", 5)) == FALSE)
+			if ((PatchMemEx(hProcess, (PBYTE)player->no_recoil->address, (PBYTE)"\xF3\x0F\x11\x50\x40", 5)) == FALSE)
 			{
 				std::cout << "[!] PatchMemEx player->no_recoil failed with error code: " << GetLastError() << std::endl;
 				system("pause");
